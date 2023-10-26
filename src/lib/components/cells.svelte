@@ -4,6 +4,10 @@
     import { store, reset } from "$lib/stores/store";
     import FilterCells from "./filterCells.svelte";
     let selectedFilter: App.filtersType = "All";
+    $: ret = $store.cells.find((cell) => cell.name === "reticulocyte");
+    $: hem = $store.cells.find((cell) => cell.name === "hematie");
+    $: rhcounter =
+        ret && hem ? ((ret?.count / hem?.count) * 100).toFixed(3) : 0;
 
     function setFilter(newFilter: App.filtersType): void {
         selectedFilter = newFilter;
@@ -27,6 +31,9 @@
     <br />
     <div class="total align-center btn btn-dark-outline">
         <h2>Counter: {$store.total}</h2>
+        {#if selectedFilter === "Rc"}
+            <span>RH {rhcounter} %</span>
+        {/if}
     </div>
     <br />
     <FilterCells {selectedFilter} {setFilter} />
