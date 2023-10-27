@@ -1,8 +1,10 @@
 <script lang="ts">
     import "$lib/styles/global.css";
     import Cell from "./cell.svelte";
-    import { store, reset } from "$lib/stores/store";
+    import { store } from "$lib/stores/store";
     import FilterCells from "./filterCells.svelte";
+    import FloatButton from "./floatButton.svelte";
+
     let selectedFilter: App.filtersType = "All";
     $: ret = $store.cells.find((cell) => cell.name === "reticulocyte");
     $: hem = $store.cells.find((cell) => cell.name === "hematie");
@@ -44,13 +46,5 @@
             <Cell {cell} />
         {/each}
     </div>
-    <button class="reset btn btn-dark-outline" on:click={reset}>reset</button>
+    <FloatButton />
 </div>
-
-<style>
-    .reset {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-    }
-</style>
