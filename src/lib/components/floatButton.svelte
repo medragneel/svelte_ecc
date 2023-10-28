@@ -2,6 +2,80 @@
     import { reset } from "$lib/stores/store";
     import Modal from "./modal.svelte";
     let showModal = false;
+    let patientName = "";
+    let url =
+        "";
+    async function sendData() {
+        const date = new Date();
+        const time = new Intl.DateTimeFormat("en-GB", {
+            hour: "numeric",
+            minute: "numeric",
+            hour12: false,
+        }).format(date);
+
+        // Retrieve cell counts from localStorage
+        const svelteStore = JSON.parse(
+            localStorage.getItem("svelte-store") ?? "null"
+        );
+        const cells = svelteStore?.cells || [];
+
+        // Create the body for the POST request
+        const body = {
+            cell: {
+                patient: patientName,
+                date: date.toLocaleDateString(),
+                time: time,
+                mono: findCellCount("Monocyte"),
+                lym: findCellCount("Lymphocyte"),
+                eosi: findCellCount("Eosinophile"),
+                pnn: findCellCount("Pnn"),
+                Baso: findCellCount("Basophile"),
+                monobl: findCellCount("Monoblaste"),
+                blaste: findCellCount("Blaste"),
+                myelocyte: findCellCount("Myelocyte"),
+                Ery: findCellCount("Erythroblaste"),
+                myelobl: findCellCount("Myeloblaste"),
+                Promono: findCellCount("Promonocyte"),
+                Promyelocyte: findCellCount("Promyelocyte"),
+                total: svelteStore.total,
+                reticulocyte: findCellCount("reticulocyte"),
+                hematie: findCellCount("hematie"),
+                rehe: calculateRehe(),
+            },
+        };
+
+        // Define the URL where you want to send the data
+
+        // Send the POST request
+        fetch(url, {
+            method: "POST",
+            body: JSON.stringify(body),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+            .then((response) => response.json())
+            .then((json) => {
+                // Do something with the response
+                console.log(json.cell);
+            });
+
+        // Reset patientName (assuming it's a global variable)
+        patientName = "";
+
+        // Helper function to find cell count by name
+        function findCellCount(cellName: string) {
+            const cell = cells.find((cell: App.Cell) => cell.name === cellName);
+            return cell ? cell.count : 0;
+        }
+
+        // Helper function to calculate rehe
+        function calculateRehe() {
+            const retiCount = findCellCount("reticulocyte");
+            const hematieCount = findCellCount("hematie");
+            return ((retiCount / hematieCount) * 100).toFixed(3) ?? 0;
+        }
+    }
 </script>
 
 <div class="floating-container">
@@ -23,13 +97,18 @@
 <Modal bind:showModal>
     <h1 slot="header">Patient</h1>
     <div class="form-container">
-        <form action="/" method="post">
+        <form action="/" method="post" on:submit|preventDefault={sendData}>
             <label for="patient-name">
                 Nom:
                 <br />
                 <br />
 
-                <input type="text" name="patient-name" id="patient-input" />
+                <input
+                    bind:value={patientName}
+                    type="text"
+                    name="patient-name"
+                    id="patient-input"
+                />
                 <br />
                 <br />
 
@@ -80,9 +159,9 @@
             opacity: 1;
         }
     }
-    i{
-    display: flex;
-    justify-content: center;
+    i {
+        display: flex;
+        justify-content: center;
     }
     .floating-container {
         position: fixed;

@@ -40,7 +40,7 @@ const increment = (cell: App.Cell) => {
         if (targetCell) {
             targetCell.count++;
             updatedState.total++;
-            saveState(updatedState);
+            saveState(updatedState as App.State);
         }
         return updatedState;
     });
@@ -53,7 +53,7 @@ const decrement = (cell: App.Cell) => {
         if (targetCell && targetCell.count > 0) {
             targetCell.count--;
             updatedState.total--;
-            saveState(updatedState);
+            saveState(updatedState as App.State);
         }
         return updatedState;
     });
@@ -66,7 +66,7 @@ const reset = () => {
             cell.count = 0;
         });
         updatedState.total = 0;
-        saveState(updatedState);
+        saveState(updatedState as App.State);
         return updatedState;
     });
 };
@@ -75,6 +75,7 @@ const reset = () => {
 function saveState(state: App.State) {
     localStorage.setItem("svelte-store", JSON.stringify(state));
 }
+
 
 export { store, increment, decrement, reset };
 
